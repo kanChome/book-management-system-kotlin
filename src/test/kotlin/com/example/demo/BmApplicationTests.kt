@@ -1,5 +1,6 @@
 package com.example.demo
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -12,29 +13,29 @@ import org.testcontainers.utility.DockerImageName
 @SpringBootTest
 @Testcontainers
 class BmApplicationTests {
+    companion object {
+        private val postgresImage = DockerImageName.parse("postgres:16-alpine")
 
-	companion object {
-		private val postgresImage = DockerImageName.parse("postgres:16-alpine")
+        @Container
+        @JvmStatic
+        val postgres =
+            PostgreSQLContainer(postgresImage).apply {
+                withDatabaseName("book_management")
+                withUsername("postgres")
+                withPassword("password")
+            }
 
-		@Container
-		@JvmStatic
-		val postgres = PostgreSQLContainer(postgresImage).apply {
-			withDatabaseName("book_management")
-			withUsername("postgres")
-			withPassword("password")
-		}
+        @JvmStatic
+        @DynamicPropertySource
+        fun overrideDataSourceProps(registry: DynamicPropertyRegistry) {
+            registry.add("spring.datasource.url", postgres::getJdbcUrl)
+            registry.add("spring.datasource.username", postgres::getUsername)
+            registry.add("spring.datasource.password", postgres::getPassword)
+        }
+    }
 
-		@JvmStatic
-		@DynamicPropertySource
-		fun overrideDataSourceProps(registry: DynamicPropertyRegistry) {
-			registry.add("spring.datasource.url", postgres::getJdbcUrl)
-			registry.add("spring.datasource.username", postgres::getUsername)
-			registry.add("spring.datasource.password", postgres::getPassword)
-		}
-	}
-
-	@Test
-	fun contextLoads() {
-	}
-
+    @Test
+    fun contextLoads() {
+        assertThat(postgres.isRunning).isTrue()
+    }
 }

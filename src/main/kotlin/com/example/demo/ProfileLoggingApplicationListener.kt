@@ -5,7 +5,6 @@ import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEven
 import org.springframework.context.ApplicationListener
 
 class ProfileLoggingApplicationListener : ApplicationListener<ApplicationEnvironmentPreparedEvent> {
-
     private val logger = LoggerFactory.getLogger(ProfileLoggingApplicationListener::class.java)
 
     override fun onApplicationEvent(event: ApplicationEnvironmentPreparedEvent) {
@@ -14,7 +13,7 @@ class ProfileLoggingApplicationListener : ApplicationListener<ApplicationEnviron
         if (activeProfiles.isEmpty()) {
             logger.info(
                 "No active profile set, running with default profile(s): {}",
-                environment.defaultProfiles.contentToString()
+                environment.defaultProfiles.contentToString(),
             )
         } else {
             logger.info("Active profile(s): {}", activeProfiles.joinToString())

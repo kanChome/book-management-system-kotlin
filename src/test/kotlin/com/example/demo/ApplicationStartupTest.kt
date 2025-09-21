@@ -6,12 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.core.env.Environment
 
-@SpringBootTest(properties = [
-    "spring.profiles.default=local",
-    "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"
-])
+@SpringBootTest(
+    properties = [
+        "spring.profiles.default=local",
+        "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration",
+    ],
+)
 class ApplicationStartupTest {
-
     @Autowired
     private lateinit var environment: Environment
 
