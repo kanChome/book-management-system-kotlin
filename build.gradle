@@ -1,6 +1,8 @@
-def flywayVersion = '11.12.0'
-
 buildscript {
+    ext.flywayVersion = '11.12.0'
+    repositories {
+        mavenCentral()
+    }
     dependencies {
         classpath("org.flywaydb:flyway-database-postgresql:${flywayVersion}")
     }
@@ -15,6 +17,7 @@ plugins {
     id 'nu.studer.jooq' version "10.1.1"
 }
 
+def flywayVersion = project.ext.flywayVersion
 def kotlinVersion = '2.2.10'
 def jooqVersion = '3.20.6'
 
