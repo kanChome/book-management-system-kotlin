@@ -8,7 +8,6 @@ import java.time.LocalDate
 import java.util.UUID
 
 class AuthorTest {
-
     @Test
     fun `名前が空白の場合は例外`() {
         assertThatThrownBy {
@@ -16,8 +15,7 @@ class AuthorTest {
                 name = " ",
                 birthDate = LocalDate.now().minusYears(20),
             )
-        }
-            .isInstanceOf(IllegalArgumentException::class.java)
+        }.isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageContaining("著者名")
     }
 
@@ -28,8 +26,7 @@ class AuthorTest {
                 name = "山田太郎",
                 birthDate = LocalDate.now().plusDays(1),
             )
-        }
-            .isInstanceOf(IllegalArgumentException::class.java)
+        }.isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageContaining("生年月日")
     }
 

@@ -60,7 +60,10 @@ class Author private constructor(
             require(name.isNotBlank()) { "著者名は必須です。" }
         }
 
-        private fun validateBirthDate(birthDate: LocalDate, clock: Clock) {
+        private fun validateBirthDate(
+            birthDate: LocalDate,
+            clock: Clock,
+        ) {
             require(birthDate.isBefore(LocalDate.now(clock))) { "生年月日は現在より過去の日付である必要があります。" }
         }
     }
