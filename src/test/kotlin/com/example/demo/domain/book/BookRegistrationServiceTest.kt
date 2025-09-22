@@ -1,12 +1,12 @@
 package com.example.demo.domain.book
 
+import com.example.demo.application.book.input.RegisterBookUseCase
 import com.example.demo.domain.author.Author
 import com.example.demo.domain.author.AuthorId
 import com.example.demo.domain.author.port.AuthorRepository
 import com.example.demo.domain.book.exception.MissingAuthorException
 import com.example.demo.domain.book.port.BookRepository
 import com.example.demo.domain.book.service.BookRegistrationService
-import com.example.demo.domain.book.service.BookRegistrationService.RegisterBookCommand
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -41,7 +41,7 @@ class BookRegistrationServiceTest {
                 )
 
             val command =
-                RegisterBookCommand(
+                RegisterBookUseCase.RegisterBookCommand(
                     title = "クリーンアーキテクチャ入門",
                     price = BigDecimal.valueOf(3200),
                     authorIds = listOf(authorId),
@@ -66,7 +66,7 @@ class BookRegistrationServiceTest {
 
             val missingId = AuthorId.from(UUID.randomUUID())
             val command =
-                RegisterBookCommand(
+                RegisterBookUseCase.RegisterBookCommand(
                     title = "失敗する書籍",
                     price = BigDecimal.TEN,
                     authorIds = listOf(existingId, missingId),
