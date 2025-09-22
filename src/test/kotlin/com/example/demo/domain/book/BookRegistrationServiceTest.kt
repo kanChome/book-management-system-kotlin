@@ -29,50 +29,6 @@ class BookRegistrationServiceTest {
         service = BookRegistrationService(bookRepository, authorRepository)
     }
 
-    @Test
-    fun `既存書籍を更新できる`() {
-        val authorId = AuthorId.from(UUID.randomUUID())
-        val otherAuthorId = AuthorId.from(UUID.randomUUID())
-        authorRepository.authors[authorId] =
-            Author.new(
-                name = "既存著者",
-                birthDate = LocalDate.now().minusYears(50),
-                id = authorId,
-            )
-        authorRepository.authors[otherAuthorId] =
-            Author.new(
-                name = "新規著者",
-                birthDate = LocalDate.now().minusYears(40),
-                id = otherAuthorId,
-            )
-
-        val savedBook =
-            Book.new(
-                title = "旧タイトル",
-                price = BigDecimal.valueOf(2000),
-                authorIds = listOf(authorId),
-            )
-        bookRepository.save(savedBook)
-
-        val command =
-            RegisterBookUseCase.UpdateBookCommand(
-                bookId = savedBook.id,
-                title = "新タイトル",
-                price = BigDecimal.valueOf(2500),
-                authorIds = listOf(otherAuthorId),
-                status = BookStatus.PUBLISHED,
-            )
-
-        val updated = service.update(command)
-
-        assertThat(updated.title).isEqualTo("新タイトル")
-        assertThat(updated.price).isEqualByComparingTo(BigDecimal.valueOf(2500))
-        assertThat(updated.authorIds).containsExactly(otherAuthorId)
-        assertThat(updated.status).isEqualTo(BookStatus.PUBLISHED)
-        val persisted = bookRepository.savedBooks.first { it.id == savedBook.id }
-        assertThat(persisted.authorIds).containsExactly(otherAuthorId)
-    }
-
     @Nested
     inner class RegisterBook {
         @Test
@@ -122,6 +78,50 @@ class BookRegistrationServiceTest {
                 .hasMessageContaining(missingId.value.toString())
             assertThat(bookRepository.savedBooks).isEmpty()
         }
+    }
+
+    @Test
+    fun `既存書籍を更新できる`() {
+        val authorId = AuthorId.from(UUID.randomUUID())
+        val otherAuthorId = AuthorId.from(UUID.randomUUID())
+        authorRepository.authors[authorId] =
+            Author.new(
+                name = "既存著者",
+                birthDate = LocalDate.now().minusYears(50),
+                id = authorId,
+            )
+        authorRepository.authors[otherAuthorId] =
+            Author.new(
+                name = "新規著者",
+                birthDate = LocalDate.now().minusYears(40),
+                id = otherAuthorId,
+            )
+
+        val savedBook =
+            Book.new(
+                title = "旧タイトル",
+                price = BigDecimal.valueOf(2000),
+                authorIds = listOf(authorId),
+            )
+        bookRepository.save(savedBook)
+
+        val command =
+            RegisterBookUseCase.UpdateBookCommand(
+                bookId = savedBook.id,
+                title = "新タイトル",
+                price = BigDecimal.valueOf(2500),
+                authorIds = listOf(otherAuthorId),
+                status = BookStatus.PUBLISHED,
+            )
+
+        val updated = service.update(command)
+
+        assertThat(updated.title).isEqualTo("新タイトル")
+        assertThat(updated.price).isEqualByComparingTo(BigDecimal.valueOf(2500))
+        assertThat(updated.authorIds).containsExactly(otherAuthorId)
+        assertThat(updated.status).isEqualTo(BookStatus.PUBLISHED)
+        val persisted = bookRepository.savedBooks.first { it.id == savedBook.id }
+        assertThat(persisted.authorIds).containsExactly(otherAuthorId)
     }
 
     private class FakeAuthorRepository : AuthorRepository {
