@@ -7,14 +7,14 @@ import com.example.demo.domain.book.Book
 import com.example.demo.domain.book.BookId
 import com.example.demo.domain.book.exception.MissingBookException
 import com.example.demo.domain.book.port.BookRepository
-import java.math.BigDecimal
-import java.time.LocalDate
-import java.util.UUID
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.util.UUID
 
 class AuthorRegistrationServiceTest {
     private lateinit var authorRepository: FakeAuthorRepository
