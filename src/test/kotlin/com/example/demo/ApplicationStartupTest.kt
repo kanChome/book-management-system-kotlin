@@ -13,6 +13,14 @@ import org.springframework.core.env.Environment
     ],
 )
 class ApplicationStartupTest {
+    @org.springframework.boot.test.mock.mockito.MockBean
+    private lateinit var registerAuthorUseCase: com.example.demo.application.author.input.RegisterAuthorUseCase
+
+    @org.springframework.boot.test.mock.mockito.MockBean
+    private lateinit var registerBookUseCase: com.example.demo.application.book.input.RegisterBookUseCase
+
+    @org.springframework.boot.test.mock.mockito.MockBean
+    private lateinit var queryBooksUseCase: com.example.demo.application.book.input.QueryBooksUseCase
     @Autowired
     private lateinit var environment: Environment
 
