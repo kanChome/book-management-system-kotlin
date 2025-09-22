@@ -1,8 +1,8 @@
 package com.example.demo.domain.author
 
+import com.example.demo.application.author.input.RegisterAuthorUseCase
 import com.example.demo.domain.author.port.AuthorRepository
 import com.example.demo.domain.author.service.AuthorRegistrationService
-import com.example.demo.domain.author.service.AuthorRegistrationService.RegisterAuthorCommand
 import com.example.demo.domain.book.Book
 import com.example.demo.domain.book.BookId
 import com.example.demo.domain.book.exception.MissingBookException
@@ -19,7 +19,7 @@ import java.util.UUID
 class AuthorRegistrationServiceTest {
     private lateinit var authorRepository: FakeAuthorRepository
     private lateinit var bookRepository: FakeBookRepository
-    private lateinit var service: AuthorRegistrationService
+    private lateinit var service: RegisterAuthorUseCase
 
     @BeforeEach
     fun setUp() {
@@ -42,7 +42,7 @@ class AuthorRegistrationServiceTest {
                 )
 
             val command =
-                RegisterAuthorCommand(
+                RegisterAuthorUseCase.RegisterAuthorCommand(
                     name = "山田太郎",
                     birthDate = LocalDate.now().minusYears(30),
                     bookIds = listOf(bookId),
@@ -59,7 +59,7 @@ class AuthorRegistrationServiceTest {
         fun `存在しない書籍IDが含まれる場合は例外`() {
             val missingBookId = BookId.new()
             val command =
-                RegisterAuthorCommand(
+                RegisterAuthorUseCase.RegisterAuthorCommand(
                     name = "山田太郎",
                     birthDate = LocalDate.now().minusYears(30),
                     bookIds = listOf(missingBookId),

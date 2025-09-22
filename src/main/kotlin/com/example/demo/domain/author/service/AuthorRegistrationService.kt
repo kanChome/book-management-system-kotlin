@@ -1,20 +1,19 @@
 package com.example.demo.domain.author.service
 
+import com.example.demo.application.author.input.RegisterAuthorUseCase
 import com.example.demo.domain.author.Author
 import com.example.demo.domain.author.AuthorId
 import com.example.demo.domain.author.port.AuthorRepository
 import com.example.demo.domain.book.BookId
 import com.example.demo.domain.book.exception.MissingBookException
 import com.example.demo.domain.book.port.BookRepository
-import java.time.Clock
-import java.time.LocalDate
 import java.util.UUID
 
 class AuthorRegistrationService(
     private val authorRepository: AuthorRepository,
     private val bookRepository: BookRepository,
-) {
-    fun register(command: RegisterAuthorCommand): Author {
+) : RegisterAuthorUseCase {
+    override fun register(command: RegisterAuthorUseCase.RegisterAuthorCommand): Author {
         val requiredBookIds = command.bookIds.toSet()
         val books = requiredBookIds.mapNotNull { bookRepository.findById(it) }
         val missingBookIds = requiredBookIds - books.map { it.id }.toSet()
@@ -41,12 +40,4 @@ class AuthorRegistrationService(
 
         return savedAuthor
     }
-
-    data class RegisterAuthorCommand(
-        val name: String,
-        val birthDate: LocalDate,
-        val bookIds: Collection<BookId> = emptyList(),
-        val authorId: AuthorId? = null,
-        val clock: Clock = Clock.systemDefaultZone(),
-    )
 }
