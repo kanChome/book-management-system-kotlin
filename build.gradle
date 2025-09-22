@@ -115,6 +115,8 @@ jooq {
     version = jooqVersion
     configurations {
         main {
+            // IntelliJ IDEAを起動するたびにJOOQのコード生成が行われ速度低下するため。
+            // デフォルトはtrue
             generateSchemaSourceOnCompilation = false
             jooqConfiguration.with {
                 logging = org.jooq.meta.jaxb.Logging.WARN
