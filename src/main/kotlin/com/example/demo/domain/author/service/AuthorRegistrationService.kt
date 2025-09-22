@@ -3,6 +3,7 @@ package com.example.demo.domain.author.service
 import com.example.demo.application.author.input.RegisterAuthorUseCase
 import com.example.demo.domain.author.Author
 import com.example.demo.domain.author.AuthorId
+import com.example.demo.domain.author.exception.AuthorNotFoundException
 import com.example.demo.domain.author.port.AuthorRepository
 import com.example.demo.domain.book.BookId
 import com.example.demo.domain.book.exception.MissingBookException
@@ -34,6 +35,50 @@ class AuthorRegistrationService(
         books.forEach { book ->
             if (!book.authorIds.contains(savedAuthor.id)) {
                 book.addAuthor(savedAuthor.id)
+                bookRepository.save(book)
+            }
+        }
+
+        return savedAuthor
+    }
+
+    override fun update(command: RegisterAuthorUseCase.UpdateAuthorCommand): Author {
+        val requiredBookIds = command.bookIds.toSet()
+        val books = requiredBookIds.mapNotNull { bookRepository.findById(it) }
+        val missingBookIds = requiredBookIds - books.map { it.id }.toSet()
+        if (missingBookIds.isNotEmpty()) {
+            throw MissingBookException(missingBookIds)
+        }
+
+        val existingAuthor = authorRepository.findById(command.authorId) ?: throw AuthorNotFoundException(command.authorId)
+
+        val updatedAuthor =
+            Author.new(
+                name = command.name,
+                birthDate = command.birthDate,
+                bookIds = requiredBookIds,
+                id = existingAuthor.id,
+                clock = command.clock,
+            )
+
+        val currentBookIds = existingAuthor.bookIds
+        val booksToAdd = requiredBookIds - currentBookIds
+        val booksToRemove = currentBookIds - requiredBookIds
+
+        val savedAuthor = authorRepository.save(updatedAuthor)
+
+        booksToAdd.forEach { bookId ->
+            val book = bookRepository.findById(bookId)
+            if (book != null && !book.authorIds.contains(savedAuthor.id)) {
+                book.addAuthor(savedAuthor.id)
+                bookRepository.save(book)
+            }
+        }
+
+        booksToRemove.forEach { bookId ->
+            val book = bookRepository.findById(bookId)
+            if (book != null && book.authorIds.contains(savedAuthor.id)) {
+                book.removeAuthor(savedAuthor.id)
                 bookRepository.save(book)
             }
         }

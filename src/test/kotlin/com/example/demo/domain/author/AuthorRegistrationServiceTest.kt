@@ -72,6 +72,53 @@ class AuthorRegistrationServiceTest {
         }
     }
 
+    @Test
+    fun `既存著者を更新できる`() {
+        val originalBookId = BookId.new()
+        val newBookId = BookId.new()
+        val originalAuthorId = AuthorId.from(UUID.randomUUID())
+        val coAuthorId = AuthorId.from(UUID.randomUUID())
+
+        bookRepository.books[originalBookId] =
+            Book.new(
+                title = "旧書籍",
+                price = BigDecimal.valueOf(2000),
+                authorIds = listOf(originalAuthorId, coAuthorId),
+                id = originalBookId,
+            )
+        bookRepository.books[newBookId] =
+            Book.new(
+                title = "新書籍",
+                price = BigDecimal.valueOf(1800),
+                authorIds = listOf(coAuthorId),
+                id = newBookId,
+            )
+
+        val existingAuthor =
+            Author.new(
+                name = "既存著者",
+                birthDate = LocalDate.now().minusYears(45),
+                bookIds = listOf(originalBookId),
+                id = originalAuthorId,
+            )
+        authorRepository.authors[originalAuthorId] = existingAuthor
+
+        val command =
+            RegisterAuthorUseCase.UpdateAuthorCommand(
+                authorId = originalAuthorId,
+                name = "更新後著者",
+                birthDate = LocalDate.now().minusYears(46),
+                bookIds = listOf(newBookId),
+            )
+
+        val updated = service.update(command)
+
+        assertThat(updated.name).isEqualTo("更新後著者")
+        assertThat(updated.bookIds).containsExactly(newBookId)
+        assertThat(bookRepository.books[newBookId]?.authorIds).contains(originalAuthorId)
+        assertThat(bookRepository.books[originalBookId]?.authorIds).doesNotContain(originalAuthorId)
+    }
+
     private class FakeAuthorRepository : AuthorRepository {
         val authors = mutableMapOf<AuthorId, Author>()
 

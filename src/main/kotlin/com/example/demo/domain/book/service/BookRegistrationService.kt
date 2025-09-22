@@ -4,6 +4,8 @@ import com.example.demo.application.book.input.RegisterBookUseCase
 import com.example.demo.domain.author.port.AuthorRepository
 import com.example.demo.domain.book.Book
 import com.example.demo.domain.book.BookId
+import com.example.demo.domain.book.BookStatus
+import com.example.demo.domain.book.exception.BookNotFoundException
 import com.example.demo.domain.book.exception.MissingAuthorException
 import com.example.demo.domain.book.port.BookRepository
 
@@ -24,9 +26,30 @@ class BookRegistrationService(
                 title = command.title,
                 price = command.price,
                 authorIds = command.authorIds,
-                id = command.bookId ?: BookId.new(),
+                id = BookId.new(),
                 status = command.status,
             )
+        return bookRepository.save(book)
+    }
+
+    override fun update(command: RegisterBookUseCase.UpdateBookCommand): Book {
+        val requiredAuthorIds = command.authorIds.toSet()
+        val existingAuthorIds = authorRepository.findAllByIds(requiredAuthorIds).map { it.id }.toSet()
+        val missingAuthorIds = requiredAuthorIds - existingAuthorIds
+        if (missingAuthorIds.isNotEmpty()) {
+            throw MissingAuthorException(missingAuthorIds)
+        }
+
+        val book = bookRepository.findById(command.bookId) ?: throw BookNotFoundException(command.bookId)
+
+        book.updateTitle(command.title)
+        book.updatePrice(command.price)
+        book.replaceAuthors(requiredAuthorIds)
+
+        if (book.status != command.status) {
+            book.changeStatus(command.status)
+        }
+
         return bookRepository.save(book)
     }
 }

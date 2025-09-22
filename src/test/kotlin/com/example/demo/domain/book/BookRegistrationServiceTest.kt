@@ -4,6 +4,7 @@ import com.example.demo.application.book.input.RegisterBookUseCase
 import com.example.demo.domain.author.Author
 import com.example.demo.domain.author.AuthorId
 import com.example.demo.domain.author.port.AuthorRepository
+import com.example.demo.domain.book.BookStatus
 import com.example.demo.domain.book.exception.MissingAuthorException
 import com.example.demo.domain.book.port.BookRepository
 import com.example.demo.domain.book.service.BookRegistrationService
@@ -26,6 +27,50 @@ class BookRegistrationServiceTest {
         authorRepository = FakeAuthorRepository()
         bookRepository = FakeBookRepository()
         service = BookRegistrationService(bookRepository, authorRepository)
+    }
+
+    @Test
+    fun `既存書籍を更新できる`() {
+        val authorId = AuthorId.from(UUID.randomUUID())
+        val otherAuthorId = AuthorId.from(UUID.randomUUID())
+        authorRepository.authors[authorId] =
+            Author.new(
+                name = "既存著者",
+                birthDate = LocalDate.now().minusYears(50),
+                id = authorId,
+            )
+        authorRepository.authors[otherAuthorId] =
+            Author.new(
+                name = "新規著者",
+                birthDate = LocalDate.now().minusYears(40),
+                id = otherAuthorId,
+            )
+
+        val savedBook =
+            Book.new(
+                title = "旧タイトル",
+                price = BigDecimal.valueOf(2000),
+                authorIds = listOf(authorId),
+            )
+        bookRepository.save(savedBook)
+
+        val command =
+            RegisterBookUseCase.UpdateBookCommand(
+                bookId = savedBook.id,
+                title = "新タイトル",
+                price = BigDecimal.valueOf(2500),
+                authorIds = listOf(otherAuthorId),
+                status = BookStatus.PUBLISHED,
+            )
+
+        val updated = service.update(command)
+
+        assertThat(updated.title).isEqualTo("新タイトル")
+        assertThat(updated.price).isEqualByComparingTo(BigDecimal.valueOf(2500))
+        assertThat(updated.authorIds).containsExactly(otherAuthorId)
+        assertThat(updated.status).isEqualTo(BookStatus.PUBLISHED)
+        val persisted = bookRepository.savedBooks.first { it.id == savedBook.id }
+        assertThat(persisted.authorIds).containsExactly(otherAuthorId)
     }
 
     @Nested

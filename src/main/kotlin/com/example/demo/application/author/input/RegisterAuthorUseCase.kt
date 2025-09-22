@@ -9,11 +9,21 @@ import java.time.LocalDate
 interface RegisterAuthorUseCase {
     fun register(command: RegisterAuthorCommand): Author
 
+    fun update(command: UpdateAuthorCommand): Author
+
     data class RegisterAuthorCommand(
         val name: String,
         val birthDate: LocalDate,
         val bookIds: Collection<BookId> = emptyList(),
         val authorId: AuthorId? = null,
+        val clock: Clock = Clock.systemDefaultZone(),
+    )
+
+    data class UpdateAuthorCommand(
+        val authorId: AuthorId,
+        val name: String,
+        val birthDate: LocalDate,
+        val bookIds: Collection<BookId> = emptyList(),
         val clock: Clock = Clock.systemDefaultZone(),
     )
 }

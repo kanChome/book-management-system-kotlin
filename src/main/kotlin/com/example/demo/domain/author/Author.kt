@@ -37,6 +37,11 @@ class Author private constructor(
         _bookIds.remove(bookId)
     }
 
+    fun replaceBooks(bookIds: Collection<BookId>) {
+        _bookIds.clear()
+        _bookIds.addAll(bookIds)
+    }
+
     companion object {
         fun new(
             name: String,

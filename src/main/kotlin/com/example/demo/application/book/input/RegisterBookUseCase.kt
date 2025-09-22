@@ -12,11 +12,20 @@ import java.math.BigDecimal
 interface RegisterBookUseCase {
     fun register(command: RegisterBookCommand): Book
 
+    fun update(command: UpdateBookCommand): Book
+
     data class RegisterBookCommand(
         val title: String,
         val price: BigDecimal,
         val authorIds: Collection<AuthorId>,
-        val bookId: BookId? = null,
         val status: BookStatus = BookStatus.UNPUBLISHED,
+    )
+
+    data class UpdateBookCommand(
+        val bookId: BookId,
+        val title: String,
+        val price: BigDecimal,
+        val authorIds: Collection<AuthorId>,
+        val status: BookStatus,
     )
 }
