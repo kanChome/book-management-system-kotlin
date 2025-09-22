@@ -78,6 +78,7 @@ ktlint {
         include("src/**/*.kts")
         include("scripts/**/*.kt")
         include("scripts/**/*.kts")
+        exclude("**/build/**")
     }
 
 }
