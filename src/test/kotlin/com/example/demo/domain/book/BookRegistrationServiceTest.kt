@@ -26,7 +26,7 @@ class BookRegistrationServiceTest {
     fun setUp() {
         authorRepository = FakeAuthorRepository()
         bookRepository = FakeBookRepository()
-        service = BookRegistrationService(bookRepository, authorRepository)
+        service = BookRegistrationService(bookRepository, bookRepository, authorRepository)
     }
 
     @Nested

@@ -1,17 +1,11 @@
 package com.example.demo.application.book.port.out
 
-import com.example.demo.domain.author.AuthorId
-import com.example.demo.domain.book.Book
-import com.example.demo.domain.book.BookId
-
 /**
- * 書籍集約の永続化ポート（Outgoing Port）。
- * インフラ層が実装し、アプリケーション/ドメインからは本ポートを介して永続化I/Oを行う。
+ * 互換用の包括ポート。段階的移行のため残置。
+ * 今後は LoadBookPort / SaveBookPort / QueryBooksPort を直接利用してください。
  */
-interface BookRepository {
-    fun findById(id: BookId): Book?
-
-    fun findByAuthorId(authorId: AuthorId): List<Book>
-
-    fun save(book: Book): Book
-}
+@Deprecated("Use LoadBookPort / SaveBookPort / QueryBooksPort instead")
+interface BookRepository :
+    LoadBookPort,
+    SaveBookPort,
+    QueryBooksPort

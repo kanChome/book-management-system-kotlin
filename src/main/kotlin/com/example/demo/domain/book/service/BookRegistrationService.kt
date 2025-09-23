@@ -2,7 +2,8 @@ package com.example.demo.domain.book.service
 
 import com.example.demo.application.author.port.out.AuthorRepository
 import com.example.demo.application.book.input.RegisterBookUseCase
-import com.example.demo.application.book.port.out.BookRepository
+import com.example.demo.application.book.port.out.LoadBookPort
+import com.example.demo.application.book.port.out.SaveBookPort
 import com.example.demo.domain.book.Book
 import com.example.demo.domain.book.BookId
 import com.example.demo.domain.book.BookStatus
@@ -10,7 +11,8 @@ import com.example.demo.domain.book.exception.BookNotFoundException
 import com.example.demo.domain.book.exception.MissingAuthorException
 
 class BookRegistrationService(
-    private val bookRepository: BookRepository,
+    private val saveBookPort: SaveBookPort,
+    private val loadBookPort: LoadBookPort,
     private val authorRepository: AuthorRepository,
 ) : RegisterBookUseCase {
     override fun register(command: RegisterBookUseCase.RegisterBookCommand): Book {
@@ -29,7 +31,7 @@ class BookRegistrationService(
                 id = BookId.new(),
                 status = command.status,
             )
-        return bookRepository.save(book)
+        return saveBookPort.save(book)
     }
 
     override fun update(command: RegisterBookUseCase.UpdateBookCommand): Book {
@@ -40,7 +42,7 @@ class BookRegistrationService(
             throw MissingAuthorException(missingAuthorIds)
         }
 
-        val book = bookRepository.findById(command.bookId) ?: throw BookNotFoundException(command.bookId)
+        val book = loadBookPort.findById(command.bookId) ?: throw BookNotFoundException(command.bookId)
 
         book.updateTitle(command.title)
         book.updatePrice(command.price)
@@ -50,6 +52,6 @@ class BookRegistrationService(
             book.changeStatus(command.status)
         }
 
-        return bookRepository.save(book)
+        return saveBookPort.save(book)
     }
 }

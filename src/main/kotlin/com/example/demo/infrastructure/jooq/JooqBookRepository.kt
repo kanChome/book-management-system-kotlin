@@ -1,6 +1,8 @@
 package com.example.demo.infrastructure.jooq
 
-import com.example.demo.application.book.port.out.BookRepository
+import com.example.demo.application.book.port.out.LoadBookPort
+import com.example.demo.application.book.port.out.QueryBooksPort
+import com.example.demo.application.book.port.out.SaveBookPort
 import com.example.demo.domain.author.AuthorId
 import com.example.demo.domain.book.Book
 import com.example.demo.domain.book.BookId
@@ -21,7 +23,9 @@ import java.util.UUID
  */
 class JooqBookRepository(
     private val dsl: DSLContext,
-) : BookRepository {
+) : LoadBookPort,
+    SaveBookPort,
+    QueryBooksPort {
     override fun findById(id: BookId): Book? {
         val b =
             dsl

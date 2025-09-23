@@ -5,6 +5,9 @@ import com.example.demo.application.author.port.out.AuthorRepository
 import com.example.demo.application.book.input.QueryBooksUseCase
 import com.example.demo.application.book.input.RegisterBookUseCase
 import com.example.demo.application.book.port.out.BookRepository
+import com.example.demo.application.book.port.out.LoadBookPort
+import com.example.demo.application.book.port.out.QueryBooksPort
+import com.example.demo.application.book.port.out.SaveBookPort
 import com.example.demo.domain.author.Author
 import com.example.demo.domain.author.AuthorId
 import com.example.demo.domain.author.service.AuthorRegistrationService
@@ -18,10 +21,11 @@ import org.springframework.transaction.annotation.Transactional
  * - ドメイン層へSpring依存を持ち込まないため、ここで@Transactionを付与し委譲する。
  */
 open class TxRegisterBookUseCase(
-    private val bookRepository: BookRepository,
+    private val saveBookPort: SaveBookPort,
+    private val loadBookPort: LoadBookPort,
     private val authorRepository: AuthorRepository,
 ) : RegisterBookUseCase {
-    private val delegate = BookRegistrationService(bookRepository, authorRepository)
+    private val delegate = BookRegistrationService(saveBookPort, loadBookPort, authorRepository)
 
     @Transactional
     open override fun register(command: RegisterBookUseCase.RegisterBookCommand): Book = delegate.register(command)
@@ -44,9 +48,9 @@ open class TxRegisterAuthorUseCase(
 }
 
 open class TxQueryBooksUseCase(
-    private val bookRepository: BookRepository,
+    private val queryBooksPort: QueryBooksPort,
 ) : QueryBooksUseCase {
-    private val delegate = BookQueryService(bookRepository)
+    private val delegate = BookQueryService(queryBooksPort)
 
     @Transactional(readOnly = true)
     open override fun findByAuthor(authorId: AuthorId) = delegate.findByAuthor(authorId)
