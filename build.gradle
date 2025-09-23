@@ -82,7 +82,7 @@ ktlint {
         include("src/**/*.kts")
         include("scripts/**/*.kt")
         include("scripts/**/*.kts")
-        exclude("**/build/**")
+        exclude("${layout.buildDirectory}/**")
     }
 
 }
@@ -97,14 +97,14 @@ tasks.withType(org.jlleitschuh.gradle.ktlint.tasks.KtLintCheckTask).configureEac
     )
 }
 
-tasks.matching { it.name.startsWith("ktlint") }.configureEach {
-    if (this is org.jlleitschuh.gradle.ktlint.tasks.KtLintCheckTask ||
-        this is org.jlleitschuh.gradle.ktlint.tasks.KtLintFormatTask
-    ) {
-        exclude("**/generated/**")
-        exclude("**/generated-src/**")
-        exclude("${'$'}buildDir/generated-src/**")
-    }
+tasks.withType(org.jlleitschuh.gradle.ktlint.tasks.KtLintFormatTask).configureEach {
+    setSource(
+        files(
+            fileTree("src/main/kotlin"),
+            fileTree("src/test/kotlin"),
+            fileTree("scripts")
+        )
+    )
 }
 
 flyway {
