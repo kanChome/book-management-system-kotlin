@@ -1,13 +1,13 @@
 package com.example.demo.domain.book.service
 
+import com.example.demo.application.author.port.out.AuthorRepository
 import com.example.demo.application.book.input.RegisterBookUseCase
-import com.example.demo.domain.author.port.AuthorRepository
+import com.example.demo.application.book.port.out.BookRepository
 import com.example.demo.domain.book.Book
 import com.example.demo.domain.book.BookId
 import com.example.demo.domain.book.BookStatus
 import com.example.demo.domain.book.exception.BookNotFoundException
 import com.example.demo.domain.book.exception.MissingAuthorException
-import com.example.demo.domain.book.port.BookRepository
 
 class BookRegistrationService(
     private val bookRepository: BookRepository,

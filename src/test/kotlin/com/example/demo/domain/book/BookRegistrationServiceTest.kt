@@ -1,12 +1,12 @@
 package com.example.demo.domain.book
 
+import com.example.demo.application.author.port.out.AuthorRepository
 import com.example.demo.application.book.input.RegisterBookUseCase
+import com.example.demo.application.book.port.out.BookRepository
 import com.example.demo.domain.author.Author
 import com.example.demo.domain.author.AuthorId
-import com.example.demo.domain.author.port.AuthorRepository
 import com.example.demo.domain.book.BookStatus
 import com.example.demo.domain.book.exception.MissingAuthorException
-import com.example.demo.domain.book.port.BookRepository
 import com.example.demo.domain.book.service.BookRegistrationService
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy

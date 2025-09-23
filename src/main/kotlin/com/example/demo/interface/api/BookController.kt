@@ -63,7 +63,9 @@ class BookController(
     }
 
     @PostMapping
-    fun register(@Valid @RequestBody req: RegisterBookRequest): ResponseEntity<BookResponse> {
+    fun register(
+        @Valid @RequestBody req: RegisterBookRequest,
+    ): ResponseEntity<BookResponse> {
         val cmd =
             RegisterBookUseCase.RegisterBookCommand(
                 title = req.title,
@@ -93,6 +95,7 @@ class BookController(
     }
 
     @GetMapping
-    fun findByAuthor(@RequestParam authorId: UUID): List<BookResponse> =
-        queryBooks.findByAuthor(AuthorId.from(authorId)).map { BookResponse.from(it) }
+    fun findByAuthor(
+        @RequestParam authorId: UUID,
+    ): List<BookResponse> = queryBooks.findByAuthor(AuthorId.from(authorId)).map { BookResponse.from(it) }
 }

@@ -1,13 +1,13 @@
 package com.example.demo.domain.author.service
 
 import com.example.demo.application.author.input.RegisterAuthorUseCase
+import com.example.demo.application.author.port.out.AuthorRepository
+import com.example.demo.application.book.port.out.BookRepository
 import com.example.demo.domain.author.Author
 import com.example.demo.domain.author.AuthorId
 import com.example.demo.domain.author.exception.AuthorNotFoundException
-import com.example.demo.domain.author.port.AuthorRepository
 import com.example.demo.domain.book.BookId
 import com.example.demo.domain.book.exception.MissingBookException
-import com.example.demo.domain.book.port.BookRepository
 import java.util.UUID
 
 class AuthorRegistrationService(

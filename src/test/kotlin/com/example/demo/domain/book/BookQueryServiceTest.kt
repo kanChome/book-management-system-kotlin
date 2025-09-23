@@ -1,10 +1,10 @@
 package com.example.demo.domain.book
 
 import com.example.demo.application.book.input.QueryBooksUseCase
+import com.example.demo.application.book.port.out.BookRepository
 import com.example.demo.domain.author.AuthorId
 import com.example.demo.domain.book.BookId
 import com.example.demo.domain.book.BookStatus
-import com.example.demo.domain.book.port.BookRepository
 import com.example.demo.domain.book.service.BookQueryService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach

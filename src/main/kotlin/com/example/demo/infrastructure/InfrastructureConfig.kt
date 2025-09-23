@@ -1,10 +1,10 @@
 package com.example.demo.infrastructure
 
 import com.example.demo.application.author.input.RegisterAuthorUseCase
+import com.example.demo.application.author.port.out.AuthorRepository
 import com.example.demo.application.book.input.QueryBooksUseCase
 import com.example.demo.application.book.input.RegisterBookUseCase
-import com.example.demo.domain.author.port.AuthorRepository
-import com.example.demo.domain.book.port.BookRepository
+import com.example.demo.application.book.port.out.BookRepository
 import com.example.demo.infrastructure.jooq.JooqAuthorRepository
 import com.example.demo.infrastructure.jooq.JooqBookRepository
 import com.example.demo.infrastructure.tx.TxQueryBooksUseCase

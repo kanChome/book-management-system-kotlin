@@ -53,7 +53,9 @@ class AuthorController(
     }
 
     @PostMapping
-    fun register(@Valid @RequestBody req: RegisterAuthorRequest): ResponseEntity<AuthorResponse> {
+    fun register(
+        @Valid @RequestBody req: RegisterAuthorRequest,
+    ): ResponseEntity<AuthorResponse> {
         val cmd =
             RegisterAuthorUseCase.RegisterAuthorCommand(
                 name = req.name,

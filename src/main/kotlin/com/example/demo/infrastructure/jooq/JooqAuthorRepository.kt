@@ -1,8 +1,8 @@
 package com.example.demo.infrastructure.jooq
 
+import com.example.demo.application.author.port.out.AuthorRepository
 import com.example.demo.domain.author.Author
 import com.example.demo.domain.author.AuthorId
-import com.example.demo.domain.author.port.AuthorRepository
 import com.example.demo.domain.book.BookId
 import com.example.demo.infrastructure.jooq.tables.references.AUTHORS
 import com.example.demo.infrastructure.jooq.tables.references.BOOK_AUTHORS

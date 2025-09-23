@@ -1,14 +1,14 @@
 package com.example.demo.infrastructure.tx
 
 import com.example.demo.application.author.input.RegisterAuthorUseCase
+import com.example.demo.application.author.port.out.AuthorRepository
 import com.example.demo.application.book.input.QueryBooksUseCase
 import com.example.demo.application.book.input.RegisterBookUseCase
+import com.example.demo.application.book.port.out.BookRepository
 import com.example.demo.domain.author.Author
 import com.example.demo.domain.author.AuthorId
-import com.example.demo.domain.author.port.AuthorRepository
 import com.example.demo.domain.author.service.AuthorRegistrationService
 import com.example.demo.domain.book.Book
-import com.example.demo.domain.book.port.BookRepository
 import com.example.demo.domain.book.service.BookQueryService
 import com.example.demo.domain.book.service.BookRegistrationService
 import org.springframework.transaction.annotation.Transactional

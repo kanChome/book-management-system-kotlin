@@ -21,46 +21,50 @@ import java.time.LocalDate
 import java.util.UUID
 
 @WebMvcTest(AuthorController::class)
-class AuthorControllerTest @Autowired constructor(
-    private val mockMvc: MockMvc,
-) {
-    @MockBean
-    private lateinit var registerAuthor: RegisterAuthorUseCase
+class AuthorControllerTest
+    @Autowired
+    constructor(
+        private val mockMvc: MockMvc,
+    ) {
+        @MockBean
+        private lateinit var registerAuthor: RegisterAuthorUseCase
 
-    @Test
-    fun `POST 著者登録 正常系`() {
-        val authorId = AuthorId.from(UUID.randomUUID())
-        val saved = Author.new("山田太郎", LocalDate.now().minusYears(20), emptyList(), id = authorId)
-        Mockito.doReturn(saved).`when`(registerAuthor).register(any())
+        @Test
+        fun `POST 著者登録 正常系`() {
+            val authorId = AuthorId.from(UUID.randomUUID())
+            val saved = Author.new("山田太郎", LocalDate.now().minusYears(20), emptyList(), id = authorId)
+            Mockito.doReturn(saved).`when`(registerAuthor).register(any())
 
-        val body =
-            """
-            {
-              "name": "山田太郎",
-              "birthDate": "${LocalDate.now().minusYears(20)}"
-            }
-            """.trimIndent()
-        mockMvc.perform(post("/api/authors").contentType(MediaType.APPLICATION_JSON).content(body))
-            .andExpect(status().isCreated)
-            .andExpect(jsonPath("$.name", equalTo("山田太郎")))
+            val body =
+                """
+                {
+                  "name": "山田太郎",
+                  "birthDate": "${LocalDate.now().minusYears(20)}"
+                }
+                """.trimIndent()
+            mockMvc
+                .perform(post("/api/authors").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isCreated)
+                .andExpect(jsonPath("$.name", equalTo("山田太郎")))
+        }
+
+        @Test
+        fun `PUT 著者更新 正常系`() {
+            val authorId = AuthorId.from(UUID.randomUUID())
+            val bookId = BookId.new()
+            val updated = Author.new("更新後", LocalDate.now().minusYears(30), listOf(bookId), id = authorId)
+            Mockito.doReturn(updated).`when`(registerAuthor).update(any())
+            val body =
+                """
+                {
+                  "name": "更新後",
+                  "birthDate": "${LocalDate.now().minusYears(30)}",
+                  "bookIds": ["${bookId.value}"]
+                }
+                """.trimIndent()
+            mockMvc
+                .perform(put("/api/authors/${authorId.value}").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.name", equalTo("更新後")))
+        }
     }
-
-    @Test
-    fun `PUT 著者更新 正常系`() {
-        val authorId = AuthorId.from(UUID.randomUUID())
-        val bookId = BookId.new()
-        val updated = Author.new("更新後", LocalDate.now().minusYears(30), listOf(bookId), id = authorId)
-        Mockito.doReturn(updated).`when`(registerAuthor).update(any())
-        val body =
-            """
-            {
-              "name": "更新後",
-              "birthDate": "${LocalDate.now().minusYears(30)}",
-              "bookIds": ["${bookId.value}"]
-            }
-            """.trimIndent()
-        mockMvc.perform(put("/api/authors/${authorId.value}").contentType(MediaType.APPLICATION_JSON).content(body))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.name", equalTo("更新後")))
-    }
-}

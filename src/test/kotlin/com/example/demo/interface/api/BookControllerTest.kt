@@ -26,59 +26,65 @@ import java.math.BigDecimal
 import java.util.UUID
 
 @WebMvcTest(BookController::class)
-class BookControllerTest @Autowired constructor(
-    private val mockMvc: MockMvc,
-) {
-    @MockBean
-    private lateinit var registerBook: RegisterBookUseCase
+class BookControllerTest
+    @Autowired
+    constructor(
+        private val mockMvc: MockMvc,
+    ) {
+        @MockBean
+        private lateinit var registerBook: RegisterBookUseCase
 
-    @MockBean
-    private lateinit var queryBooks: QueryBooksUseCase
+        @MockBean
+        private lateinit var queryBooks: QueryBooksUseCase
 
-    @Test
-    fun `POST 書籍登録 正常系`() {
-        val authorId = AuthorId.from(UUID.randomUUID())
-        val saved =
-            Book.new(
-                title = "ドメイン駆動設計",
-                price = BigDecimal.valueOf(3000),
-                authorIds = listOf(authorId),
-                id = BookId.new(),
-                status = BookStatus.UNPUBLISHED,
+        @Test
+        fun `POST 書籍登録 正常系`() {
+            val authorId = AuthorId.from(UUID.randomUUID())
+            val saved =
+                Book.new(
+                    title = "ドメイン駆動設計",
+                    price = BigDecimal.valueOf(3000),
+                    authorIds = listOf(authorId),
+                    id = BookId.new(),
+                    status = BookStatus.UNPUBLISHED,
+                )
+            Mockito.doReturn(saved).`when`(registerBook).register(any())
+
+            val body =
+                """
+                {
+                  "title": "ドメイン駆動設計",
+                  "price": 3000,
+                  "authorIds": ["${authorId.value}"]
+                }
+                """.trimIndent()
+
+            mockMvc
+                .perform(post("/api/books").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isCreated)
+                .andExpect(jsonPath("$.title", equalTo("ドメイン駆動設計")))
+                .andExpect(jsonPath("$.authorIds[0]", equalTo(authorId.value.toString())))
+
+            verify(registerBook).register(
+                check { cmd ->
+                    assert(cmd.title == "ドメイン駆動設計")
+                    assert(cmd.authorIds.contains(authorId))
+                },
             )
-        Mockito.doReturn(saved).`when`(registerBook).register(any())
+        }
 
-        val body =
-            """
-            {
-              "title": "ドメイン駆動設計",
-              "price": 3000,
-              "authorIds": ["${authorId.value}"]
-            }
-            """.trimIndent()
+        @Test
+        fun `GET 著者IDで書籍検索 正常系`() {
+            val authorId = AuthorId.from(UUID.randomUUID())
+            val bookA = Book.new("A", BigDecimal.TEN, listOf(authorId))
+            val bookB = Book.new("B", BigDecimal.ONE, listOf(authorId))
+            Mockito.`when`(queryBooks.findByAuthor(any())).thenReturn(listOf(bookA, bookB))
 
-        mockMvc.perform(post("/api/books").contentType(MediaType.APPLICATION_JSON).content(body))
-            .andExpect(status().isCreated)
-            .andExpect(jsonPath("$.title", equalTo("ドメイン駆動設計")))
-            .andExpect(jsonPath("$.authorIds[0]", equalTo(authorId.value.toString())))
-
-        verify(registerBook).register(check { cmd ->
-            assert(cmd.title == "ドメイン駆動設計")
-            assert(cmd.authorIds.contains(authorId))
-        })
+            mockMvc
+                .perform(get("/api/books").param("authorId", authorId.value.toString()))
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$", hasSize<Int>(2)))
+                .andExpect(jsonPath("$[0].title", equalTo("A")))
+                .andExpect(jsonPath("$[1].title", equalTo("B")))
+        }
     }
-
-    @Test
-    fun `GET 著者IDで書籍検索 正常系`() {
-        val authorId = AuthorId.from(UUID.randomUUID())
-        val bookA = Book.new("A", BigDecimal.TEN, listOf(authorId))
-        val bookB = Book.new("B", BigDecimal.ONE, listOf(authorId))
-        Mockito.`when`(queryBooks.findByAuthor(any())).thenReturn(listOf(bookA, bookB))
-
-        mockMvc.perform(get("/api/books").param("authorId", authorId.value.toString()))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$", hasSize<Int>(2)))
-            .andExpect(jsonPath("$[0].title", equalTo("A")))
-            .andExpect(jsonPath("$[1].title", equalTo("B")))
-    }
-}

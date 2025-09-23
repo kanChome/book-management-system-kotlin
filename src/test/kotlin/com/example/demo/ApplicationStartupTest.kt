@@ -21,6 +21,7 @@ class ApplicationStartupTest {
 
     @org.springframework.boot.test.mock.mockito.MockBean
     private lateinit var queryBooksUseCase: com.example.demo.application.book.input.QueryBooksUseCase
+
     @Autowired
     private lateinit var environment: Environment
 
