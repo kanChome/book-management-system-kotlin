@@ -1,6 +1,6 @@
 package com.example.demo.domain.book
 
-import com.example.demo.application.author.port.out.AuthorRepository
+import com.example.demo.application.author.port.out.LoadAuthorsPort
 import com.example.demo.application.book.input.RegisterBookUseCase
 import com.example.demo.application.book.port.out.BookRepository
 import com.example.demo.domain.author.Author
@@ -124,17 +124,10 @@ class BookRegistrationServiceTest {
         assertThat(persisted.authorIds).containsExactly(otherAuthorId)
     }
 
-    private class FakeAuthorRepository : AuthorRepository {
+    private class FakeAuthorRepository : LoadAuthorsPort {
         val authors = mutableMapOf<AuthorId, Author>()
 
-        override fun findById(id: AuthorId): Author? = authors[id]
-
         override fun findAllByIds(ids: Collection<AuthorId>): List<Author> = ids.mapNotNull { authors[it] }
-
-        override fun save(author: Author): Author {
-            authors[author.id] = author
-            return author
-        }
     }
 
     private class FakeBookRepository : BookRepository {

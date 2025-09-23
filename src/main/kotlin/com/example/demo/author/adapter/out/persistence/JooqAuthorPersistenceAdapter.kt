@@ -1,6 +1,8 @@
 package com.example.demo.author.adapter.out.persistence
 
-import com.example.demo.application.author.port.out.AuthorRepository
+import com.example.demo.application.author.port.out.LoadAuthorPort
+import com.example.demo.application.author.port.out.LoadAuthorsPort
+import com.example.demo.application.author.port.out.SaveAuthorPort
 import com.example.demo.domain.author.Author
 import com.example.demo.domain.author.AuthorId
 import com.example.demo.domain.book.BookId
@@ -19,7 +21,9 @@ import java.util.UUID
  */
 class JooqAuthorPersistenceAdapter(
     private val dsl: DSLContext,
-) : AuthorRepository {
+) : SaveAuthorPort,
+    LoadAuthorPort,
+    LoadAuthorsPort {
     override fun findById(id: AuthorId): Author? {
         val a =
             dsl

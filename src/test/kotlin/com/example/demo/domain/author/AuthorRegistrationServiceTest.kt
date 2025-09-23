@@ -1,8 +1,10 @@
 package com.example.demo.domain.author
 
 import com.example.demo.application.author.input.RegisterAuthorUseCase
-import com.example.demo.application.author.port.out.AuthorRepository
-import com.example.demo.application.book.port.out.BookRepository
+import com.example.demo.application.author.port.out.LoadAuthorPort
+import com.example.demo.application.author.port.out.SaveAuthorPort
+import com.example.demo.application.book.port.out.LoadBookPort
+import com.example.demo.application.book.port.out.SaveBookPort
 import com.example.demo.domain.author.service.AuthorRegistrationService
 import com.example.demo.domain.book.Book
 import com.example.demo.domain.book.BookId
@@ -25,7 +27,7 @@ class AuthorRegistrationServiceTest {
     fun setUp() {
         authorRepository = FakeAuthorRepository()
         bookRepository = FakeBookRepository()
-        service = AuthorRegistrationService(authorRepository, bookRepository)
+        service = AuthorRegistrationService(authorRepository, authorRepository, bookRepository, bookRepository)
     }
 
     @Nested
@@ -119,12 +121,12 @@ class AuthorRegistrationServiceTest {
         assertThat(bookRepository.books[originalBookId]?.authorIds).doesNotContain(originalAuthorId)
     }
 
-    private class FakeAuthorRepository : AuthorRepository {
+    private class FakeAuthorRepository :
+        SaveAuthorPort,
+        LoadAuthorPort {
         val authors = mutableMapOf<AuthorId, Author>()
 
         override fun findById(id: AuthorId): Author? = authors[id]
-
-        override fun findAllByIds(ids: Collection<AuthorId>): List<Author> = ids.mapNotNull { authors[it] }
 
         override fun save(author: Author): Author {
             authors[author.id] = author
@@ -132,12 +134,12 @@ class AuthorRegistrationServiceTest {
         }
     }
 
-    private class FakeBookRepository : BookRepository {
+    private class FakeBookRepository :
+        SaveBookPort,
+        LoadBookPort {
         val books = mutableMapOf<BookId, Book>()
 
         override fun findById(id: BookId): Book? = books[id]
-
-        override fun findByAuthorId(authorId: AuthorId): List<Book> = books.values.filter { it.authorIds.contains(authorId) }
 
         override fun save(book: Book): Book {
             books[book.id] = book

@@ -1,6 +1,6 @@
 package com.example.demo.infrastructure
 
-import com.example.demo.application.author.port.out.AuthorRepository
+// Author ports are provided individually; no aggregate AuthorRepository bean
 import com.example.demo.application.author.service.RegisterAuthorService
 import com.example.demo.application.book.port.out.LoadBookPort
 import com.example.demo.application.book.port.out.QueryBooksPort
@@ -39,7 +39,25 @@ class InfrastructureConfig {
             com.example.demo.application.book.port.out.QueryBooksPort by repo {}
 
     @Bean
-    fun authorRepository(dsl: DSLContext): AuthorRepository = JooqAuthorPersistenceAdapter(dsl)
+    fun jooqAuthorPersistenceAdapter(dsl: DSLContext): JooqAuthorPersistenceAdapter = JooqAuthorPersistenceAdapter(dsl)
+
+    @Bean
+    fun saveAuthorPort(repo: JooqAuthorPersistenceAdapter): com.example.demo.application.author.port.out.SaveAuthorPort =
+        object : com.example.demo.application.author.port.out.SaveAuthorPort {
+            override fun save(author: com.example.demo.domain.author.Author) = repo.save(author)
+        }
+
+    @Bean
+    fun loadAuthorPort(repo: JooqAuthorPersistenceAdapter): com.example.demo.application.author.port.out.LoadAuthorPort =
+        object : com.example.demo.application.author.port.out.LoadAuthorPort {
+            override fun findById(id: com.example.demo.domain.author.AuthorId) = repo.findById(id)
+        }
+
+    @Bean
+    fun loadAuthorsPort(repo: JooqAuthorPersistenceAdapter): com.example.demo.application.author.port.out.LoadAuthorsPort =
+        object : com.example.demo.application.author.port.out.LoadAuthorsPort {
+            override fun findAllByIds(ids: Collection<com.example.demo.domain.author.AuthorId>) = repo.findAllByIds(ids)
+        }
 
     @Bean
     fun saveBookPort(repo: JooqBookPersistenceAdapter): SaveBookPort =
@@ -63,16 +81,18 @@ class InfrastructureConfig {
     fun bookRegistrationService(
         saveBookPort: SaveBookPort,
         loadBookPort: LoadBookPort,
-        authorRepository: AuthorRepository,
-    ) = BookRegistrationService(saveBookPort, loadBookPort, authorRepository)
+        loadAuthorsPort: com.example.demo.application.author.port.out.LoadAuthorsPort,
+    ) = BookRegistrationService(saveBookPort, loadBookPort, loadAuthorsPort)
 
     // RegisterBookService は @Service で登録される
 
     @Bean
     fun authorRegistrationService(
-        authorRepository: AuthorRepository,
-        bookRepository: com.example.demo.application.book.port.out.BookRepository,
-    ) = AuthorRegistrationService(authorRepository, bookRepository)
+        saveAuthorPort: com.example.demo.application.author.port.out.SaveAuthorPort,
+        loadAuthorPort: com.example.demo.application.author.port.out.LoadAuthorPort,
+        saveBookPort: SaveBookPort,
+        loadBookPort: LoadBookPort,
+    ) = AuthorRegistrationService(saveAuthorPort, loadAuthorPort, saveBookPort, loadBookPort)
 
     // RegisterAuthorService は @Service で登録される
 

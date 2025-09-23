@@ -1,6 +1,6 @@
 package com.example.demo.domain.book.service
 
-import com.example.demo.application.author.port.out.AuthorRepository
+import com.example.demo.application.author.port.out.LoadAuthorsPort
 import com.example.demo.application.book.input.RegisterBookUseCase
 import com.example.demo.application.book.port.out.LoadBookPort
 import com.example.demo.application.book.port.out.SaveBookPort
@@ -13,11 +13,11 @@ import com.example.demo.domain.book.exception.MissingAuthorException
 class BookRegistrationService(
     private val saveBookPort: SaveBookPort,
     private val loadBookPort: LoadBookPort,
-    private val authorRepository: AuthorRepository,
+    private val loadAuthorsPort: LoadAuthorsPort,
 ) : RegisterBookUseCase {
     override fun register(command: RegisterBookUseCase.RegisterBookCommand): Book {
         val requiredAuthorIds = command.authorIds.toSet()
-        val existingAuthorIds = authorRepository.findAllByIds(requiredAuthorIds).map { it.id }.toSet()
+        val existingAuthorIds = loadAuthorsPort.findAllByIds(requiredAuthorIds).map { it.id }.toSet()
         val missingAuthorIds = requiredAuthorIds - existingAuthorIds
         if (missingAuthorIds.isNotEmpty()) {
             throw MissingAuthorException(missingAuthorIds)
@@ -36,7 +36,7 @@ class BookRegistrationService(
 
     override fun update(command: RegisterBookUseCase.UpdateBookCommand): Book {
         val requiredAuthorIds = command.authorIds.toSet()
-        val existingAuthorIds = authorRepository.findAllByIds(requiredAuthorIds).map { it.id }.toSet()
+        val existingAuthorIds = loadAuthorsPort.findAllByIds(requiredAuthorIds).map { it.id }.toSet()
         val missingAuthorIds = requiredAuthorIds - existingAuthorIds
         if (missingAuthorIds.isNotEmpty()) {
             throw MissingAuthorException(missingAuthorIds)
