@@ -1,4 +1,4 @@
-package com.example.demo.infrastructure.jooq
+package com.example.demo.author.adapter.out.persistence
 
 import com.example.demo.application.author.port.out.AuthorRepository
 import com.example.demo.domain.author.Author
@@ -17,7 +17,7 @@ import java.util.UUID
  * - なぜ: ドメインの AuthorRepository ポートを満たすため。
  * - メモ: 書籍との関連の書き込みは Book 側で管理（結合表更新は BookRepository に集約）。
  */
-class JooqAuthorRepository(
+class JooqAuthorPersistenceAdapter(
     private val dsl: DSLContext,
 ) : AuthorRepository {
     override fun findById(id: AuthorId): Author? {

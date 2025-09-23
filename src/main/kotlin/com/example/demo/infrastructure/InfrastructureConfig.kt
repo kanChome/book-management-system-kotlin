@@ -1,17 +1,17 @@
 package com.example.demo.infrastructure
 
-import com.example.demo.application.author.input.RegisterAuthorUseCase
 import com.example.demo.application.author.port.out.AuthorRepository
-import com.example.demo.application.book.input.QueryBooksUseCase
-import com.example.demo.application.book.input.RegisterBookUseCase
+import com.example.demo.application.author.service.RegisterAuthorService
 import com.example.demo.application.book.port.out.LoadBookPort
 import com.example.demo.application.book.port.out.QueryBooksPort
 import com.example.demo.application.book.port.out.SaveBookPort
-import com.example.demo.infrastructure.jooq.JooqAuthorRepository
-import com.example.demo.infrastructure.jooq.JooqBookRepository
-import com.example.demo.infrastructure.tx.TxQueryBooksUseCase
-import com.example.demo.infrastructure.tx.TxRegisterAuthorUseCase
-import com.example.demo.infrastructure.tx.TxRegisterBookUseCase
+import com.example.demo.application.book.service.QueryBooksService
+import com.example.demo.application.book.service.RegisterBookService
+import com.example.demo.author.adapter.out.persistence.JooqAuthorPersistenceAdapter
+import com.example.demo.book.adapter.out.persistence.JooqBookPersistenceAdapter
+import com.example.demo.domain.author.service.AuthorRegistrationService
+import com.example.demo.domain.book.service.BookQueryService
+import com.example.demo.domain.book.service.BookRegistrationService
 import org.jooq.DSLContext
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -28,10 +28,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 @ConditionalOnProperty("spring.datasource.url")
 class InfrastructureConfig {
     @Bean
-    fun jooqBookRepository(dsl: DSLContext): JooqBookRepository = JooqBookRepository(dsl)
+    fun jooqBookRepository(dsl: DSLContext): JooqBookPersistenceAdapter = JooqBookPersistenceAdapter(dsl)
 
     @Bean
-    fun bookRepositoryPort(repo: JooqBookRepository): com.example.demo.application.book.port.out.BookRepository =
+    fun bookRepositoryPort(repo: JooqBookPersistenceAdapter): com.example.demo.application.book.port.out.BookRepository =
         object :
             com.example.demo.application.book.port.out.BookRepository,
             com.example.demo.application.book.port.out.LoadBookPort by repo,
@@ -39,39 +39,45 @@ class InfrastructureConfig {
             com.example.demo.application.book.port.out.QueryBooksPort by repo {}
 
     @Bean
-    fun authorRepository(dsl: DSLContext): AuthorRepository = JooqAuthorRepository(dsl)
+    fun authorRepository(dsl: DSLContext): AuthorRepository = JooqAuthorPersistenceAdapter(dsl)
 
     @Bean
-    fun saveBookPort(repo: JooqBookRepository): SaveBookPort =
+    fun saveBookPort(repo: JooqBookPersistenceAdapter): SaveBookPort =
         object : SaveBookPort {
             override fun save(book: com.example.demo.domain.book.Book) = repo.save(book)
         }
 
     @Bean
-    fun loadBookPort(repo: JooqBookRepository): LoadBookPort =
+    fun loadBookPort(repo: JooqBookPersistenceAdapter): LoadBookPort =
         object : LoadBookPort {
             override fun findById(id: com.example.demo.domain.book.BookId) = repo.findById(id)
         }
 
     @Bean
-    fun queryBooksPort(repo: JooqBookRepository): QueryBooksPort =
+    fun queryBooksPort(repo: JooqBookPersistenceAdapter): QueryBooksPort =
         object : QueryBooksPort {
             override fun findByAuthorId(authorId: com.example.demo.domain.author.AuthorId) = repo.findByAuthorId(authorId)
         }
 
     @Bean
-    fun registerBookUseCase(
+    fun bookRegistrationService(
         saveBookPort: SaveBookPort,
         loadBookPort: LoadBookPort,
         authorRepository: AuthorRepository,
-    ): RegisterBookUseCase = TxRegisterBookUseCase(saveBookPort, loadBookPort, authorRepository)
+    ) = BookRegistrationService(saveBookPort, loadBookPort, authorRepository)
+
+    // RegisterBookService は @Service で登録される
 
     @Bean
-    fun registerAuthorUseCase(
+    fun authorRegistrationService(
         authorRepository: AuthorRepository,
         bookRepository: com.example.demo.application.book.port.out.BookRepository,
-    ): RegisterAuthorUseCase = TxRegisterAuthorUseCase(authorRepository, bookRepository)
+    ) = AuthorRegistrationService(authorRepository, bookRepository)
+
+    // RegisterAuthorService は @Service で登録される
 
     @Bean
-    fun queryBooksUseCase(queryBooksPort: QueryBooksPort): QueryBooksUseCase = TxQueryBooksUseCase(queryBooksPort)
+    fun bookQueryService(queryBooksPort: QueryBooksPort) = BookQueryService(queryBooksPort)
+
+    // QueryBooksService は @Service で登録される
 }

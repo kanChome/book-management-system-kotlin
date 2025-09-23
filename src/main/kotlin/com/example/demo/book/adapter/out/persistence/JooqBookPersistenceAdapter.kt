@@ -1,4 +1,4 @@
-package com.example.demo.infrastructure.jooq
+package com.example.demo.book.adapter.out.persistence
 
 import com.example.demo.application.book.port.out.LoadBookPort
 import com.example.demo.application.book.port.out.QueryBooksPort
@@ -21,7 +21,7 @@ import java.util.UUID
  * - 方針: 単純で明示的なSQLを優先（生成メタモデル未生成でもビルドできるようにDSLの文字列参照を使用）。
  *   将来的にjOOQ生成コード（Tables.*）へ置換可能。
  */
-class JooqBookRepository(
+class JooqBookPersistenceAdapter(
     private val dsl: DSLContext,
 ) : LoadBookPort,
     SaveBookPort,
